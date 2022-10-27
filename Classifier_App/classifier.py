@@ -52,9 +52,6 @@ def result():
         #元画像から顔部分切り取った画像
         face_img, d=get_face_rect(filepath)
         face_img=cv2.cvtColor(face_img, cv2.COLOR_BGR2RGB)
-        # plt.imshow(face_img)
-        # plt.axis('off')
-        # plt.show()
 
         #データの型変換
         x_test=np.asarray(face_img)
@@ -65,44 +62,25 @@ def result():
         y1=int(d.top())
         x2=int(d.right())
         y2=int(d.bottom())
-        cv2.rectangle(test_img, (x1, y1), (x2, y2), color=(255,0,0), thickness=5)
-        # plt.imshow(test_img)
-        # plt.axis('off')
-        # plt.show()
+        test_img=cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)
 
         #モデルでの予測
-        model = load_model("./images/model_asutama.h5")
+        model = load_model("./images/model_asutama_new.h5")
         pred=model.predict(x_test)[0]
         print(pred[0])
         if pred[0]<0.5:
-            # print("予測結果：", labels[0])
+            cv2.rectangle(test_img, (x1, y1), (x2, y2), color=(255,255,0), thickness=5)
+            cv2.imwrite(UPLOAD_FOLDER+"test.jpg", test_img)
+            file_path_new=UPLOAD_FOLDER+"test.jpg"
             result=labels[0]
         else:
-            # print("予測結果：", labels[1])
+            cv2.rectangle(test_img, (x1, y1), (x2, y2), color=(0,255,255), thickness=5)
+            cv2.imwrite(UPLOAD_FOLDER+"test.jpg", test_img)
+            file_path_new=UPLOAD_FOLDER+"test.jpg"
             result=labels[1]
 
-    return render_template("result.html", result=Markup(result), filepath=filepath)
-
-    #     # 画像の読み込み
-    #     image = Image.open(filepath)
-    #     image = image.convert("RGB")
-    #     image = image.resize((img_size, img_size))
-    #     x = np.array(image, dtype=float)
-    #     x = x.reshape(1, img_size, img_size, 3) / 255
-    #
-    #     # 予測
-    #     model = load_model("./images/model_asutama.h5")
-    #     y = model.predict(x)[0]
-    #     sorted_idx = np.argsort(y)[::-1]  # 降順でソート
-    #     result = ""
-    #     for i in range(n_result):
-    #         idx = sorted_idx[i]
-    #         ratio = y[idx]
-    #         label = labels[idx]
-    #         result += "<p>" + str(round(ratio*100, 1)) + "%の確率で" + label + "です。</p>"
-    #     return render_template("result.html", result=Markup(result), filepath=filepath)
-    # else:
-    #     return redirect(url_for("index"))
+    return render_template("result.html", result=Markup(result), filepath=file_path_new)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run()
